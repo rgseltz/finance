@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from models import connect_db, db, User, bcrypt
+from models import connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, User_Stock
 from sqlalchemy.exc import IntegrityError
 # from forms import
 from secret import finance_key
@@ -12,7 +12,7 @@ app.config["SQLALCHEMY_ECHO"] = True
 app.config["SECRET_KEY"] = finance_key
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
-print(finance_key)
 connect_db(app)
+db.create_all()
 
 toolbar = DebugToolbarExtension(app)
