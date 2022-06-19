@@ -16,3 +16,8 @@ connect_db(app)
 db.create_all()
 
 toolbar = DebugToolbarExtension(app)
+
+
+@app.route('/')
+def show_homepage():
+    return render_template('index.html')
