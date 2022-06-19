@@ -20,6 +20,7 @@ toolbar = DebugToolbarExtension(app)
 ############Handle Session Data - User Login - Flask Global################
 
 
+@app.before_first_request
 def add_global_user():
     """If user is currently logged in, add user to flask global"""
     if session['CURR_USER_KEY']:
