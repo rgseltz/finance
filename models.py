@@ -2,6 +2,18 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from wtforms_alchemy import ModelForm
 
+from flask_wtf import FlaskForm
+from wtforms_alchemy import model_form_factory
+
+BaseModelForm = model_form_factory(FlaskForm)
+
+
+class ModelForm(BaseModelForm):
+    @classmethod
+    def get_session(self):
+        return db.session
+
+
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
@@ -18,7 +30,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    username = db.Column(db.String, unique=True, nullable=False)
+    username = db.Column(db.String, nullable=False)
 
     password = db.Column(db.String, nullable=False)
 
@@ -100,3 +112,16 @@ class User_Stock(db.Model):
 
     stock_id = db.Column(db.Integer, db.ForeignKey(
         'stocks.id'), primary_key=True)
+
+
+class LoginForm(ModelForm):
+    class Meta:
+        model = User
+
+        only = ['username', 'password']
+
+
+class RegisterForm(ModelForm):
+
+    class Meta:
+        model = User

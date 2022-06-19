@@ -32,15 +32,10 @@
               </form>
             </li>
             {% endif %}
-            {% if not g.user %}
-            <li><a href="/signup">New to Finance? Register</a></li>
+            {% if not session['user_id'] %}
+            <li><a href="/register">Sign Up</a></li>
             <li><a href="/login">Log In</a></li>
             {% else %}
-            <li>
-              <a href="/users/{{ g.user.id }}">
-                <img src="{{ g.user.image_url }}" alt="{{ g.user.username }}">
-              </a>
-            </li>
             <li><a href="/logout">Log out</a></li>
             {% endif %}
           </ul>
