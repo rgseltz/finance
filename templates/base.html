@@ -23,21 +23,22 @@
               </a>
           </div>
           <ul class="nav navbar-nav navbar-right">
-            {% if request.endpoint != None %}
-            <li>
-              <form class="navbar-form navbar-right" action="/users">
-                <input name="q" class="form-control" placeholder="Find Stocks" id="search">
-                <button class="btn btn-default">
-                </button>
-              </form>
-            </li>
-            {% endif %}
             {% if not session['user_id'] %}
             <li><a href="/register">Sign Up</a></li>
             <li><a href="/login">Log In</a></li>
             {% else %}
             <li><a href="/logout">Log out</a></li>
             {% endif %}
+            {% if request.endpoint != None %}
+            <li>
+              <form class="navbar-form navbar-right" action="/users">
+                <input name="q"  placeholder="Find Stocks" id="search">
+                <button class="btn btn-default">Add
+                </button>
+              </form>
+            </li>
+            {% endif %}
+           
           </ul>
         </div>
       </nav>

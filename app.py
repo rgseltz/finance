@@ -5,6 +5,11 @@ from models import LoginForm, RegisterForm, connect_db, db, User, bcrypt, Portfo
 from sqlalchemy.exc import IntegrityError
 # from forms import
 from secret import finance_key
+import json
+import requests
+import certifi
+from urllib.request import urlopen
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///finance"
@@ -78,7 +83,11 @@ def logout():
     flash('Successfully logged out', 'success')
     return redirect('/')
 
+
 ################Flask Routes#################################
+STOCK = 'goog'
+url = 'https://financialmodelingprep.com/api/v3/'
+profile_url = f'{url}/profile/{STOCK}?api_key={finance_key}'
 
 
 @app.route('/', methods=["GET"])
@@ -93,3 +102,31 @@ def show_portfolios():
         flash('Please sign in to access your portfolio', "danger")
         redirect('/')
     return render_template('portfolios.html')
+
+
+@app.route('/quote/<symbol>/profile', methods=["GET"])
+def get_stock_profile(symbol):
+    # symbol = response.params
+    # stock = 'goog'
+    url = f'https://financialmodelingprep.com/api/v3/profile/{symbol}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    response = requests.request("GET", url, headers=headers)
+    data = response.json()
+    stock = (data[0])
+    json.dumps(response.text)
+    return render_template('stock_info.html', stock=stock)
+
+
+@app.route('/search', methods=["GET"])
+def search_ticker():
+    url = "https://financialmodelingprep.com/api/v3/search?query=goog&limit=50&apikey=9e5ca9243a059ff6320c70bfe3e964d7"
+
+    payload = {}
+    headers = {}
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    print(response.text)
+    return redirect('/')
