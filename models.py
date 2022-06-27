@@ -1,7 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import ForeignKey
 from flask_bcrypt import Bcrypt
 from wtforms_alchemy import ModelForm
-
+from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms_alchemy import model_form_factory
 
@@ -75,6 +76,8 @@ class Portfolio(db.Model):
     stocks = db.relationship("Stock", secondary=(
         "portfolios_stocks"), backref=("portfolio"))
 
+    # db relationship transactions.portfolio is backrefed at Transaction w/ passthru at portfolios_transactions
+
 
 class Stock(db.Model):
     """Creates a new stock"""
@@ -88,6 +91,9 @@ class Stock(db.Model):
     ticker = db.Column(db.String, unique=True, nullable=False)
 
     price = db.Column(db.Float, nullable=False)
+
+    def __repr__(self):
+        return f'<stock_name={self.stock_name}, ticker={self.ticker}, price={self.price}>'
 
 
 class Portfolio_Stock(db.Model):
@@ -112,6 +118,38 @@ class User_Stock(db.Model):
 
     stock_id = db.Column(db.Integer, db.ForeignKey(
         'stocks.id'), primary_key=True)
+
+
+class Portfolio_Transaction(db.Model):
+    """Join table for transaction and portfolio"""
+
+    __tablename__ = 'portfolios_transactions'
+
+    portfolio_id = db.Column(db.Integer, db.ForeignKey(
+        'portfolios.id'), primary_key=True)
+
+    transaction_id = db.Column(db.Integer, db.ForeignKey(
+        'transactions.id'), primary_key=True)
+
+
+class Transaction(db.Model):
+    """Object that records user trades"""
+
+    __tablename__ = 'transactions'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+
+    date = db.Column(db.DateTime, nullable=False)
+
+    quantity = db.Column(db.Float, nullable=False)
+
+    stock_id = db.Column(db.Integer, db.ForeignKey(
+        'stocks.id'), nullable=False)
+
+    price = db.Column(db.Float, nullable=False)
+
+    portfolio = db.relationship('Portfolio', secondary=(
+        'portfolios_transactions'), backref=('transactions'))
 
 
 class LoginForm(ModelForm):

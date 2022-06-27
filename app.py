@@ -1,7 +1,7 @@
 # from sys import ps1
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from models import LoginForm, RegisterForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, User_Stock
+from models import LoginForm, RegisterForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, User_Stock, Transaction, Portfolio_Transaction
 from sqlalchemy.exc import IntegrityError
 # from forms import
 from secret import finance_key
@@ -12,7 +12,7 @@ from urllib.request import urlopen
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///finance"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///finance_db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SECRET_KEY"] = 'fe13a9b1386f3721801d04c07a6f707cf8e221f1f8a6c424f27600c5b5e00f9c'
@@ -21,7 +21,6 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 api_key = finance_key
 
 connect_db(app)
-db.create_all()
 
 toolbar = DebugToolbarExtension(app)
 
