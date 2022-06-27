@@ -9,7 +9,7 @@ import json
 import requests
 import certifi
 from urllib.request import urlopen
-
+from datetime import datetime
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///finance_db"
