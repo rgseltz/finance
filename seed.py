@@ -1,6 +1,6 @@
-from models import connect_db, db, User, Portfolio, Stock, Portfolio_Stock, User_Stock, Transaction, Portfolio_Transaction
+from models import connect_db, db, User, Portfolio, Stock, Portfolio_Stock, Transaction, Portfolio_Transaction
 from app import app
-
+from datetime import datetime
 # create tables
 db.drop_all()
 db.create_all()
@@ -25,9 +25,9 @@ db.session.add_all(portfolios)
 
 # make a bunch of transactions
 transactions = [
-    Transaction(quantity=45, stock_id=1, price=525.32),
-    Transaction(quantity=67, stock_id=2, price=422.32),
-    Transaction(quantity=25, stock_id=3, price=498.32)]
+    Transaction(date=datetime.today(), quantity=45, stock_id=1, price=525.32),
+    Transaction(date=datetime.today(), quantity=67, stock_id=2, price=422.32),
+    Transaction(date=datetime.today(), quantity=25, stock_id=3, price=498.32)]
 
 
 # create relationships

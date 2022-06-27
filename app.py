@@ -1,7 +1,7 @@
 # from sys import ps1
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from models import LoginForm, RegisterForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, User_Stock, Transaction, Portfolio_Transaction
+from models import LoginForm, RegisterForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, Transaction, Portfolio_Transaction
 from sqlalchemy.exc import IntegrityError
 # from forms import
 from secret import finance_key
@@ -12,7 +12,7 @@ from urllib.request import urlopen
 from datetime import datetime
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///finance_db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///finance"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SECRET_KEY"] = 'fe13a9b1386f3721801d04c07a6f707cf8e221f1f8a6c424f27600c5b5e00f9c'
@@ -103,11 +103,11 @@ def show_portfolios():
     return render_template('portfolios.html')
 
 
-@app.route('/quote/<symbol>/profile', methods=["GET"])
-def get_stock_profile(symbol):
+@app.route('/quote/<ticker>/profile', methods=["GET"])
+def get_stock_profile(ticker):
     # symbol = response.params
     # stock = 'goog'
-    url = f'https://financialmodelingprep.com/api/v3/profile/{symbol}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    url = f'https://financialmodelingprep.com/api/v3/profile/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {
         'Content-Type': 'application/json'
     }
@@ -116,6 +116,28 @@ def get_stock_profile(symbol):
     stock = (data[0])
     json.dumps(response.text)
     return render_template('stock_info.html', stock=stock)
+
+
+@app.route('/quote/<ticker>/price', methods=["GET"])
+def get_stock_price(ticker):
+    import requests
+    url = f'https://financialmodelingprep.com/api/v3/quote/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    response = requests.request("GET", url, headers=headers)
+    data = response.json()
+    print(data)
+    return render_template('quote/stock_info.html', stock=data)
+
+
+@app.route('/quote/<ticker>/chart', methods=["GET"])
+def get_stock_chart(ticker):
+    import requests
+    url = f'https://financialmodelingprep.com/api/v3/quote/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    response = requests.request("GET", url, headers=headers)
+    data = response.json()
+    print(data)
+    return render_template('quote/stock_info.html', stock=data)
 
 
 @app.route('/search', methods=["GET"])

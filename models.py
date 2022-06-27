@@ -37,8 +37,8 @@ class User(db.Model):
 
     email = db.Column(db.String, nullable=False, unique=True)
 
-    stocks = db.relationship('Stock', secondary=(
-        'users_stocks'), backref=('user'))
+    # stocks = db.relationship('Stock', secondary=(
+    #     'portfolios_stocks'), viewonly=True)
 
     @classmethod
     def register(cls, username, email, pwd):
@@ -74,7 +74,7 @@ class Portfolio(db.Model):
     user = db.relationship("User", backref=("portfolios"))
 
     stocks = db.relationship("Stock", secondary=(
-        "portfolios_stocks"), backref=("portfolio"))
+        "portfolios_stocks"), backref=("portfolios"))
 
     # db relationship transactions.portfolio is backrefed at Transaction w/ passthru at portfolios_transactions
 
@@ -107,17 +107,8 @@ class Portfolio_Stock(db.Model):
     stock_id = db.Column(db.Integer, db.ForeignKey(
         'stocks.id'), primary_key=True)
 
-
-class User_Stock(db.Model):
-    """Creates an object that joins a user and a stock"""
-
-    __tablename__ = 'users_stocks'
-
-    user_id = db.Column(db.Integer, db.ForeignKey(
-        'users.id'), primary_key=True)
-
-    stock_id = db.Column(db.Integer, db.ForeignKey(
-        'stocks.id'), primary_key=True)
+    # user_id = db.Column(db.Integer, db.ForeignKey(
+    #     'users.id'), primary_key=True)
 
 
 class Portfolio_Transaction(db.Model):
@@ -139,7 +130,7 @@ class Transaction(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
 
-    date = db.Column(db.DateTime, nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.today())
 
     quantity = db.Column(db.Float, nullable=False)
 
