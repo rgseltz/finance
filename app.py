@@ -94,13 +94,7 @@ def show_homepage():
     print(f'###########################{session}#############')
     return render_template('index.html')
 
-
-@app.route('/portfolios', methods=["GET"])
-def show_portfolios():
-    if "user_id" not in session:
-        flash('Please sign in to access your portfolio', "danger")
-        redirect('/')
-    return render_template('portfolios.html')
+###########Quote Resources#####################
 
 
 @app.route('/quote/<ticker>/profile', methods=["GET"])
@@ -120,7 +114,7 @@ def get_stock_profile(ticker):
 
 @app.route('/quote/<ticker>/price', methods=["GET"])
 def get_stock_price(ticker):
-    import requests
+
     url = f'https://financialmodelingprep.com/api/v3/quote/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
@@ -128,16 +122,58 @@ def get_stock_price(ticker):
     print(data)
     return render_template('quote/stock_info.html', stock=data)
 
+# quote route income statment resource
 
-@app.route('/quote/<ticker>/chart', methods=["GET"])
-def get_stock_chart(ticker):
-    import requests
-    url = f'https://financialmodelingprep.com/api/v3/quote/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+
+@app.route('/quote/<ticker>/financials/inc', methods=["GET"])
+def get_stock_income_statement(ticker):
+
+    url = f'https://financialmodelingprep.com/api/v3/income-statement/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
     data = response.json()
     print(data)
     return render_template('quote/stock_info.html', stock=data)
+
+# quote route balance statement resource
+
+
+@app.route('/quote/<ticker>/financials/bal', methods=["GET"])
+def get_stock_balance_sheet(ticker):
+
+    url = f'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    response = requests.request("GET", url, headers=headers)
+    data = response.json()
+    print(data)
+    return render_template('quote/stock_info.html', stock=data)
+
+# quote route historical data resource
+
+
+def today_clean():
+    today = datetime.today()
+    today_iso = today.isoformat()
+    return today_iso[0:10]
+
+
+@app.route('/quote/<ticker>/history', methods=["GET"])
+def get_stock_history(ticker):
+
+    url = f'https://financialmodelingprep.com/api/v3/historical-price-full/{ticker}?from=2018-03-12&to={today_clean()}&apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    response = requests.request("GET", url, headers=headers)
+    data = response.json()
+    print(data)
+    return render_template('quote/stock_info.html', stock=data)
+
+
+@app.route('/portfolios', methods=["GET"])
+def show_portfolios():
+    if "user_id" not in session:
+        flash('Please sign in to access your portfolio', "danger")
+        redirect('/')
+    return render_template('portfolios.html')
 
 
 @app.route('/search', methods=["GET"])
