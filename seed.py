@@ -22,4 +22,15 @@ portfolios = [Portfolio(portfolio_name='p1', user_id=1), Portfolio(
 
 db.session.add_all(portfolios)
 
+
+# make a bunch of transactions
+transactions = [
+    Transaction(quantity=45, stock_id=1, price=525.32),
+    Transaction(quantity=67, stock_id=2, price=422.32),
+    Transaction(quantity=25, stock_id=3, price=498.32)]
+
+
+# create relationships
+
+db.session.add_all(transactions)
 db.session.commit()
