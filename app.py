@@ -1,6 +1,7 @@
 # from sys import ps1
 from flask import Flask, render_template, redirect, session, flash, request
 from flask_debugtoolbar import DebugToolbarExtension
+from forms import NewTransactionForm
 from models import LoginForm, RegisterForm, AddPortfolioForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, Transaction, Portfolio_Transaction
 from sqlalchemy.exc import IntegrityError
 # from forms import
@@ -219,7 +220,6 @@ def get_portfolio(id):
 
 @app.route('/portfolios/<int:id>/addstock', methods=["GET", "POST"])
 def add_stock_to_portfolio(id):
-
     ticker = request.form['add-stock']
     portfolio = Portfolio.query.get(id)
     url = f'https://financialmodelingprep.com/api/v3/profile/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
@@ -234,6 +234,30 @@ def add_stock_to_portfolio(id):
     db.session.add(portfolio)
     db.session.commit()
     return redirect(f'/portfolios/{portfolio.id}')
+
+# add transaction to portfolio
+
+
+@app.route('/portfolios/<int:portfolio_id>/transaction/<stock_id>', methods=["GET", "POST"])
+def new_transaction(portfolio_id, stock_id):
+    portfolio = Portfolio.query.get(portfolio_id)
+    stock = Stock.query.get(stock_id)
+    form = NewTransactionForm(obj=stock)
+    stock_id = stock.id
+    ticker = stock.ticker
+    if form.validate_on_submit():
+        date = form.date.data
+        quantity = form.quantity.data
+        ticker = form.ticker.data
+        price = form.price.data
+
+        transaction = Transaction(
+            date=date, quantity=quantity, ticker=ticker, price=price)
+        db.session.add(transaction)
+        db.session.commit()
+        return redirect(f'/portfolios/{portfolio.id}')
+
+    return render_template('portfolio/transaction.html', form=form, stock=stock, portfolio=portfolio)
 
 
 @app.route('/search', methods=["GET"])
