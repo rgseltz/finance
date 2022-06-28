@@ -134,8 +134,10 @@ class Transaction(db.Model):
 
     quantity = db.Column(db.Float, nullable=False)
 
-    stock_id = db.Column(db.Integer, db.ForeignKey(
-        'stocks.id'), nullable=False)
+    # stock_id = db.Column(db.Integer, db.ForeignKey(
+    #     'stocks.id'), nullable=False)
+
+    ticker = db.Column(db.String)
 
     price = db.Column(db.Float, nullable=False)
 
