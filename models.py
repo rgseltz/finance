@@ -67,7 +67,7 @@ class Portfolio(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    portfolio_name = db.Column(db.String)
+    portfolio_name = db.Column(db.String, nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
@@ -86,9 +86,9 @@ class Stock(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    stock_name = db.Column(db.String, unique=True, nullable=False)
+    stock_name = db.Column(db.String, nullable=False)
 
-    ticker = db.Column(db.String, unique=True, nullable=False)
+    ticker = db.Column(db.String, nullable=False)
 
     price = db.Column(db.Float, nullable=False)
 
