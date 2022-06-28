@@ -154,3 +154,9 @@ class RegisterForm(ModelForm):
 
     class Meta:
         model = User
+
+
+class AddPortfolioForm(ModelForm):
+    class Meta:
+        model = Portfolio
+        only = ['portfolio_name']

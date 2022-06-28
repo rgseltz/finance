@@ -1,7 +1,7 @@
 # from sys import ps1
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from models import LoginForm, RegisterForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, Transaction, Portfolio_Transaction
+from models import LoginForm, RegisterForm, AddPortfolioForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, Transaction, Portfolio_Transaction
 from sqlalchemy.exc import IntegrityError
 # from forms import
 from secret import finance_key
@@ -68,10 +68,10 @@ def log_in_user():
         if user:
             session['user_id'] = user.id
             flash("Welcome back!", "success")
-            redirect('/')
-
-        flash("Incorrect username/password", "danger")
-        return render_template('login.html', form=form)
+            return redirect('/')
+        else:
+            flash("Incorrect username/password", "danger")
+            return render_template('login.html', form=form)
 
     return render_template('login.html', form=form)
 
@@ -95,6 +95,7 @@ def show_homepage():
     return render_template('index.html')
 
 ###########Quote Resources#####################
+# quote route profile resource
 
 
 @app.route('/quote/<ticker>/profile', methods=["GET"])
@@ -111,10 +112,11 @@ def get_stock_profile(ticker):
     json.dumps(response.text)
     return render_template('stock_info.html', stock=stock)
 
+# quote route price resource
+
 
 @app.route('/quote/<ticker>/price', methods=["GET"])
 def get_stock_price(ticker):
-
     url = f'https://financialmodelingprep.com/api/v3/quote/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
@@ -127,7 +129,6 @@ def get_stock_price(ticker):
 
 @app.route('/quote/<ticker>/financials/inc', methods=["GET"])
 def get_stock_income_statement(ticker):
-
     url = f'https://financialmodelingprep.com/api/v3/income-statement/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
@@ -140,7 +141,6 @@ def get_stock_income_statement(ticker):
 
 @app.route('/quote/<ticker>/financials/bal', methods=["GET"])
 def get_stock_balance_sheet(ticker):
-
     url = f'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
@@ -167,13 +167,33 @@ def get_stock_history(ticker):
     print(data)
     return render_template('quote/stock_info.html', stock=data)
 
+###########Portfolio Resources#####################
+
 
 @app.route('/portfolios', methods=["GET"])
 def show_portfolios():
     if "user_id" not in session:
         flash('Please sign in to access your portfolio', "danger")
-        redirect('/')
-    return render_template('portfolios.html')
+        return redirect('/')
+    else:
+        user = User.query.get(session["user_id"])
+        form = AddPortfolioForm()
+        return render_template('portfolios.html', form=form, user=user)
+
+# make new portfolio
+
+
+@app.route('/portfolios/add', methods=["GET", "POST"])
+def add_portfolio():
+    form = AddPortfolioForm()
+    user = User.query.get(session["user_id"])
+    portfolio_name = form.portfolio_name.data
+    portfolio = Portfolio(portfolio_name=portfolio_name)
+    user.portfolios.append(portfolio)
+    db.session.add(portfolio)
+    db.session.add(user)
+    db.session.commit()
+    return redirect('/portfolios')
 
 
 @app.route('/search', methods=["GET"])

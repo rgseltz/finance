@@ -2,5 +2,27 @@
 {% block title %}Finance Page{% endblock %}
 
 {% block content %}
-<h1>Your Portfolio Page</h1>
+<h1>{{user.username}}'s Portfolio Page</h1>
+<div id="add-portfolio">
+    <form action="/portfolios/add" method="POST">
+        {{form.hidden_tag()}}
+        {% for field in form if field.widget.input_type != "hidden" %}
+        <p>{{field.label}}
+            {{field}}
+            {% for err in field.errors %}
+            {{err}}
+            {% endfor %}
+        </p>
+        {% endfor %}
+        <button>Add Portfolio</button>
+</div>
+<div>
+    <h2>Portfolios</h2>
+    <ul>
+        {% for p in user.portfolios %}
+        <li>{{p.id}}{{p.portfolio_name}}</li>
+        {% endfor %}
+    </ul>
+
+    </div>
 {% endblock %}
