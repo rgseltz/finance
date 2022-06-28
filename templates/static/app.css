@@ -1,0 +1,8 @@
+#pf-list {
+    display: flexbox;
+}
+
+.pf-item {
+    display: inline;
+}
+
