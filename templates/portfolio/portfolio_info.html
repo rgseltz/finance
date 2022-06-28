@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Portfolio Info{% endblock %}
+
+{% block content %}
+<section id="pf-nav">
+    <ul id="pf-list" class="list-group list-group-horizontal">
+        {% for p in user.portfolios %}
+        <li class="list-group-item"><a href="/portfolios/{{p.id}}" class="btn btn-info">{{p.id}}  {{p.portfolio_name}}</a></li>
+        {% endfor %}
+    </ul>
+
+    </section>
+<h1>{{user.username}}'s Portfolios</h1>
+<h2>{{portfolio.portfolio_name}}</h2>
+<form class="navbar-form" method="POST" action="/portfolios/{{portfolio.id}}/addstock">
+    <input placeholder="Add Stock" id="search" name="add-stock">
+    <button class="btn btn-default" >Add Stock</button>
+  </form>
+<table>
+    {% if portfolio.stocks %}
+    <thead>
+        <th>Name</th>
+        <th>Ticker</th>
+        <th>Price</th>
+    </thead>
+    <tbody>
+        {% for stock in portfolio.stocks %}
+    <tr>
+        <td>{{stock.stock_name}}</td>
+        <td>{{stock.ticker}}</td>
+        <td>{{stock.price}}</td>
+    </tr>
+        {% endfor %}
+    </tbody>
+    
+    {% endif %}
+</table>
+{% endblock %}

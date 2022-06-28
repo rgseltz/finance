@@ -16,13 +16,11 @@
         {% endfor %}
         <button>Add Portfolio</button>
 </div>
-<div>
-    <h2>Portfolios</h2>
-    <ul>
+<section id="pf-nav">
+    <ul id="pf-list" class="list-group list-group-horizontal">
         {% for p in user.portfolios %}
-        <li>{{p.id}}{{p.portfolio_name}}</li>
+        <li class="list-group-item"><a href="/portfolios/{{p.id}}" class="btn btn-info">{{p.id}}{{p.portfolio_name}}</a></li>
         {% endfor %}
     </ul>
-
-    </div>
+    </section>
 {% endblock %}

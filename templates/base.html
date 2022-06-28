@@ -7,6 +7,7 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet"
     href="https://unpkg.com/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="./static/app.css">
 </head>
 <body>
     <nav class="navbar navbar-expand">
@@ -24,14 +25,14 @@
           </div>
           <ul class="nav navbar-nav navbar-right">
             {% if not session['user_id'] %}
-            <li><a href="/register">Sign Up</a></li>
+            <li><a href="/register">New User</a></li>
             <li><a href="/login">Log In</a></li>
             {% else %}
             <li><a href="/logout">Log out</a></li>
             {% endif %}
             {% if request.endpoint != None %}
             <li>
-              <form class="navbar-form navbar-right" action="/users">
+              <form class="navbar-form navbar-right">
                 <input name="q"  placeholder="Find Stocks" id="search">
                 <button class="btn btn-default">Add
                 </button>

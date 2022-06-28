@@ -1,5 +1,5 @@
 # from sys import ps1
-from flask import Flask, render_template, redirect, session, flash
+from flask import Flask, render_template, redirect, session, flash, request
 from flask_debugtoolbar import DebugToolbarExtension
 from models import LoginForm, RegisterForm, AddPortfolioForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, Transaction, Portfolio_Transaction
 from sqlalchemy.exc import IntegrityError
@@ -169,6 +169,8 @@ def get_stock_history(ticker):
 
 ###########Portfolio Resources#####################
 
+# show user portfolios
+
 
 @app.route('/portfolios', methods=["GET"])
 def show_portfolios():
@@ -194,6 +196,44 @@ def add_portfolio():
     db.session.add(user)
     db.session.commit()
     return redirect('/portfolios')
+
+# view portfolio
+
+
+@app.route('/portfolios/<int:id>')
+def get_portfolio(id):
+    if "user_id" not in session:
+        flash('Please sign in to access your portfolio', "danger")
+        return redirect('/')
+    else:
+        user = User.query.get(session["user_id"])
+        portfolio = Portfolio.query.get(id)
+        if portfolio not in user.portfolios:
+            flash('That is not your portfolio! Stay out')
+            return redirect('/portfolios')
+        else:
+            return render_template('/portfolio/portfolio_info.html', user=user, portfolio=portfolio)
+
+
+# add stock to portfolio
+
+@app.route('/portfolios/<int:id>/addstock', methods=["GET", "POST"])
+def add_stock_to_portfolio(id):
+
+    ticker = request.form['add-stock']
+    portfolio = Portfolio.query.get(id)
+    url = f'https://financialmodelingprep.com/api/v3/profile/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'application/json'}
+    response = requests.request("GET", url, headers=headers)
+    data = response.json()
+    print(data)
+    stock = Stock(stock_name=data[0]["companyName"],
+                  ticker=data[0]["symbol"], price=data[0]["price"])
+    portfolio.stocks.append(stock)
+    db.session.add(stock)
+    db.session.add(portfolio)
+    db.session.commit()
+    return redirect(f'/portfolios/{portfolio.id}')
 
 
 @app.route('/search', methods=["GET"])
