@@ -24,13 +24,13 @@ db.session.add_all(portfolios)
 
 
 # make a bunch of transactions
-transactions = [
-    Transaction(date=datetime.today(), quantity=45, stock_id=1, price=525.32),
-    Transaction(date=datetime.today(), quantity=67, stock_id=2, price=422.32),
-    Transaction(date=datetime.today(), quantity=25, stock_id=3, price=498.32)]
+# transactions = [
+#     Transaction(date=datetime.today(), quantity=45, stock_id=1, price=525.32),
+#     Transaction(date=datetime.today(), quantity=67, stock_id=2, price=422.32),
+#     Transaction(date=datetime.today(), quantity=25, stock_id=3, price=498.32)]
 
 
 # create relationships
 
-db.session.add_all(transactions)
+# db.session.add_all(transactions)
 db.session.commit()

@@ -16,6 +16,9 @@
     <input placeholder="Add Stock" id="search" name="add-stock">
     <button class="btn btn-default" >Add Stock</button>
   </form>
+  <form class="navbar-form" method="POST" action="/portfolios/{{portfolio.id}}/transaction">
+    <button class="btn btn-default" >Add Transaction</button>
+  </form>
 <table>
     {% if portfolio.stocks %}
     <thead>
@@ -26,7 +29,9 @@
     <tbody>
         {% for stock in portfolio.stocks %}
     <tr>
-        <td>{{stock.stock_name}}</td>
+        <td>{{stock.stock_name}}<form method="POST" action="/portfolios/{{portfolio.id}}/transaction/{{stock.id}}">
+            <button class="btn btn-default" >Add Transaction</button>
+          </form></td>
         <td>{{stock.ticker}}</td>
         <td>{{stock.price}}</td>
     </tr>
