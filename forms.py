@@ -15,3 +15,8 @@ class NewTransactionForm(FlaskForm):
     ticker = StringField('Ticker')
 
     price = FloatField('Price')
+
+    # def remove_stock_id():
+    #     form = NewTransactionForm(FlaskForm)
+    #     if form:
+    #         del form.stock_id

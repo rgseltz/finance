@@ -4,7 +4,7 @@ from flask_bcrypt import Bcrypt
 from wtforms_alchemy import ModelForm
 from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms_alchemy import model_form_factory
+from wtforms_alchemy import model_form_factory, Optional
 
 BaseModelForm = model_form_factory(FlaskForm)
 
@@ -162,3 +162,4 @@ class AddPortfolioForm(ModelForm):
     class Meta:
         model = Portfolio
         only = ['portfolio_name']
+        field_args = {'portfolio_name': {'validators': [Optional()]}}

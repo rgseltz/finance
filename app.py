@@ -5,7 +5,7 @@ from forms import NewTransactionForm
 from models import LoginForm, RegisterForm, AddPortfolioForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, Transaction, Portfolio_Transaction
 from sqlalchemy.exc import IntegrityError
 # from forms import
-from secret import finance_key
+from secret import finance_key, yfapi_key
 import json
 import requests
 import certifi
@@ -20,6 +20,7 @@ app.config["SECRET_KEY"] = 'fe13a9b1386f3721801d04c07a6f707cf8e221f1f8a6c424f276
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 api_key = finance_key
+yfapi_key = yfapi_key
 
 connect_db(app)
 
@@ -92,14 +93,21 @@ profile_url = f'{url}/profile/{STOCK}?api_key={finance_key}'
 
 @app.route('/', methods=["GET"])
 def show_homepage():
+    market_summary_url = "https://yfapi.net/v6/finance/quote/marketSummary"
+    quote_url = "https://yfapi.net/v6/finance/quote"
+    query_string = {"symbols": "^SP500TR,^DJI,NDAQ,BTC-USD,EURUSD=X"}
+    response = requests.request(
+        "GET", quote_url, headers={'x-api-key': yfapi_key}, params=query_string)
     print(f'###########################{session}#############')
-    return render_template('index.html')
+    data = response.json()
+    print(data["quoteResponse"])
+    return render_template('index.html', data=data["quoteResponse"])
 
 ###########Quote Resources#####################
 # quote route profile resource
 
 
-@app.route('/quote/<ticker>/profile', methods=["GET"])
+@ app.route('/quote/<ticker>/profile', methods=["GET"])
 def get_stock_profile(ticker):
     # symbol = response.params
     # stock = 'goog'
@@ -116,7 +124,7 @@ def get_stock_profile(ticker):
 # quote route price resource
 
 
-@app.route('/quote/<ticker>/price', methods=["GET"])
+@ app.route('/quote/<ticker>/price', methods=["GET"])
 def get_stock_price(ticker):
     url = f'https://financialmodelingprep.com/api/v3/quote/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'applications/json'}
@@ -128,7 +136,7 @@ def get_stock_price(ticker):
 # quote route income statment resource
 
 
-@app.route('/quote/<ticker>/financials/inc', methods=["GET"])
+@ app.route('/quote/<ticker>/financials/inc', methods=["GET"])
 def get_stock_income_statement(ticker):
     url = f'https://financialmodelingprep.com/api/v3/income-statement/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'applications/json'}
@@ -140,7 +148,7 @@ def get_stock_income_statement(ticker):
 # quote route balance statement resource
 
 
-@app.route('/quote/<ticker>/financials/bal', methods=["GET"])
+@ app.route('/quote/<ticker>/financials/bal', methods=["GET"])
 def get_stock_balance_sheet(ticker):
     url = f'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'applications/json'}
@@ -158,7 +166,7 @@ def today_clean():
     return today_iso[0:10]
 
 
-@app.route('/quote/<ticker>/history', methods=["GET"])
+@ app.route('/quote/<ticker>/history', methods=["GET"])
 def get_stock_history(ticker):
 
     url = f'https://financialmodelingprep.com/api/v3/historical-price-full/{ticker}?from=2018-03-12&to={today_clean()}&apikey=9e5ca9243a059ff6320c70bfe3e964d7'
@@ -173,7 +181,7 @@ def get_stock_history(ticker):
 # show user portfolios
 
 
-@app.route('/portfolios', methods=["GET"])
+@ app.route('/portfolios', methods=["GET"])
 def show_portfolios():
     if "user_id" not in session:
         flash('Please sign in to access your portfolio', "danger")
@@ -186,7 +194,7 @@ def show_portfolios():
 # make new portfolio
 
 
-@app.route('/portfolios/add', methods=["GET", "POST"])
+@ app.route('/portfolios/add', methods=["GET", "POST"])
 def add_portfolio():
     form = AddPortfolioForm()
     user = User.query.get(session["user_id"])
@@ -198,10 +206,36 @@ def add_portfolio():
     db.session.commit()
     return redirect('/portfolios')
 
+# edit portfolio
+
+
+@ app.route('/portfolios/<int:portfolio_id>/edit', methods=["GET", "POST"])
+def edit_portfolio(portfolio_id):
+    portfolio = Portfolio.query.get(portfolio_id)
+    form = AddPortfolioForm(obj=portfolio)
+    if form.validate_on_submit():
+        name = form.portfolio_name.data
+        portfolio.portfolio_name = name
+        db.session.add(portfolio)
+        db.session.commit()
+        return redirect('/portfolios')
+    return render_template('portfolio/portfolio_edit.html', form=form)
+
+# delete portfolio
+
+
+@ app.route('/portfolios/<int:id>/delete', methods=["POST"])
+def delete_portfolio(id):
+    portfolio = Portfolio.query.get(id)
+    print('###########################TEST')
+    print(portfolio)
+    db.session.delete(portfolio)
+    db.session.commit()
+    return redirect('/portfolios')
 # view portfolio
 
 
-@app.route('/portfolios/<int:id>')
+@ app.route('/portfolios/<int:id>')
 def get_portfolio(id):
     if "user_id" not in session:
         flash('Please sign in to access your portfolio', "danger")
@@ -218,7 +252,7 @@ def get_portfolio(id):
 
 # add stock to portfolio
 
-@app.route('/portfolios/<int:id>/addstock', methods=["GET", "POST"])
+@ app.route('/portfolios/<int:id>/addstock', methods=["GET", "POST"])
 def add_stock_to_portfolio(id):
     ticker = request.form['add-stock']
     portfolio = Portfolio.query.get(id)
@@ -227,6 +261,7 @@ def add_stock_to_portfolio(id):
     response = requests.request("GET", url, headers=headers)
     data = response.json()
     print(data)
+    Stock.query.filter_by(ticker=data[0]["symbol"])
     stock = Stock(stock_name=data[0]["companyName"],
                   ticker=data[0]["symbol"], price=data[0]["price"])
     portfolio.stocks.append(stock)
@@ -235,32 +270,69 @@ def add_stock_to_portfolio(id):
     db.session.commit()
     return redirect(f'/portfolios/{portfolio.id}')
 
+
+# remove stock from portfolio
+@ app.route('/portfolios/<int:port_id>/stock/<id>/delete', methods=["POST"])
+def delete_stock(port_id, id):
+    stock = Stock.query.get(id)
+    portfolio = Portfolio.query.get(port_id)
+    db.session.delete(stock)
+    db.session.commit()
+    return redirect(f'/portfolios/{port_id}')
+
+
 # add transaction to portfolio
 
 
-@app.route('/portfolios/<int:portfolio_id>/transaction/<stock_id>', methods=["GET", "POST"])
+@ app.route('/portfolios/<int:portfolio_id>/transactions/<int:stock_id>', methods=["GET", "POST"])
 def new_transaction(portfolio_id, stock_id):
     portfolio = Portfolio.query.get(portfolio_id)
     stock = Stock.query.get(stock_id)
     form = NewTransactionForm(obj=stock)
-    stock_id = stock.id
-    ticker = stock.ticker
     if form.validate_on_submit():
         date = form.date.data
         quantity = form.quantity.data
         ticker = form.ticker.data
         price = form.price.data
+        # stock_id = form.stock_id.data
+        # del form.stock_id
 
         transaction = Transaction(
             date=date, quantity=quantity, ticker=ticker, price=price)
         db.session.add(transaction)
         db.session.commit()
         return redirect(f'/portfolios/{portfolio.id}')
+    return render_template('transaction.html', form=form, stock=stock, portfolio=portfolio)
 
-    return render_template('portfolio/transaction.html', form=form, stock=stock, portfolio=portfolio)
+# View Transactions
 
 
-@app.route('/search', methods=["GET"])
+@app.route('/portfolios/<int:port_id>/transactions/<int:tran_id>', methods=["GET"])
+def view_transaction(port_id, tran_id):
+    transaction = Transaction.query.get(tran_id)
+    stock_id = db.session.query(Transaction.stock_id)
+    portfolio = Portfolio.query.get(port_id)
+    stock = Stock.query.get(stock_id)
+    return render_template('transaction_info.html', portfolio=portfolio, stock=stock, transaction=transaction)
+
+
+# delete transaction from portfolio
+@ app.route('/portfolios/<int:port_id>/transactions/<int:tran_id>/delete', methods=["POST"])
+def delete_transaction(port_id, tran_id):
+    portfolio = Portfolio.query.get(port_id)
+    transaction = Transaction.query.get(tran_id)
+    db.session.delete(transaction)
+    db.session.commit()
+    return redirect(f'portfolios/{port_id}')
+
+# edit transaction
+# @app.route('/portfolios/<int:port_id>/transaction/<int:stock_id>/edit')
+# def edit_transaction(port_id, stock_id):
+
+
+# search for stock
+
+@ app.route('/search', methods=["GET"])
 def search_ticker():
     url = "https://financialmodelingprep.com/api/v3/search?query=goog&limit=50&apikey=9e5ca9243a059ff6320c70bfe3e964d7"
 
