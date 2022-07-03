@@ -1,5 +1,6 @@
 import requests
-api_key = "1G6Qv0DZjt3MS5J478NhO82oczZ4QB829AxKYm05"
+from secret import yfapi_key
+api_key = yfapi_key
 
 # quote_url = "https://yfapi.net/v6/finance/quote"
 
