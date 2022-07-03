@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Transaction Info{% endblock %}
+
+{% block content %}
+<h1>Transaction Info</h1>
+<table>
+    <thead>
+        <th>Date</th>
+        <th>Stock</th>
+        <th>Shares</th>
+        <th>Price per Share</th>
+        <th>Transaction Value</th>
+    </thead>
+    <tbody>
+        <td>{{transaction.date}}</td>
+        <td>{{transaction.ticker}}</td>
+        <td>{{transaction.shares}}</td>
+        <td>{{transaction.price}}</td>
+        <td>{{value}}</td>
+    </tbody>
+</table>
+<form action="/portfolios/{{portfolio.id}}/transactions/{{transaction.id}}/delete" method="POST">
+<button>Delete Transaction</button>
+</form>
+{% endblock %}

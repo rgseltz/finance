@@ -243,6 +243,7 @@ def get_portfolio(id):
     else:
         user = User.query.get(session["user_id"])
         portfolio = Portfolio.query.get(id)
+        transactions = portfolio.transactions
         if portfolio not in user.portfolios:
             flash('That is not your portfolio! Stay out')
             return redirect('/portfolios')
@@ -284,7 +285,7 @@ def delete_stock(port_id, id):
 # add transaction to portfolio
 
 
-@ app.route('/portfolios/<int:portfolio_id>/transactions/<int:stock_id>', methods=["GET", "POST"])
+@ app.route('/portfolios/<int:portfolio_id>/transactions/<int:stock_id>/new', methods=["GET", "POST"])
 def new_transaction(portfolio_id, stock_id):
     portfolio = Portfolio.query.get(portfolio_id)
     stock = Stock.query.get(stock_id)
@@ -299,7 +300,9 @@ def new_transaction(portfolio_id, stock_id):
 
         transaction = Transaction(
             date=date, quantity=quantity, ticker=ticker, price=price)
+        portfolio.transactions.append(transaction)
         db.session.add(transaction)
+        db.session.add(portfolio)
         db.session.commit()
         return redirect(f'/portfolios/{portfolio.id}')
     return render_template('transaction.html', form=form, stock=stock, portfolio=portfolio)
@@ -310,10 +313,9 @@ def new_transaction(portfolio_id, stock_id):
 @app.route('/portfolios/<int:port_id>/transactions/<int:tran_id>', methods=["GET"])
 def view_transaction(port_id, tran_id):
     transaction = Transaction.query.get(tran_id)
-    stock_id = db.session.query(Transaction.stock_id)
     portfolio = Portfolio.query.get(port_id)
-    stock = Stock.query.get(stock_id)
-    return render_template('transaction_info.html', portfolio=portfolio, stock=stock, transaction=transaction)
+    value = transaction.price * transaction.quantity
+    return render_template('transaction_info.html', portfolio=portfolio, transaction=transaction, value=value)
 
 
 # delete transaction from portfolio
@@ -323,7 +325,7 @@ def delete_transaction(port_id, tran_id):
     transaction = Transaction.query.get(tran_id)
     db.session.delete(transaction)
     db.session.commit()
-    return redirect(f'portfolios/{port_id}')
+    return redirect(f'/portfolios/{portfolio.id}')
 
 # edit transaction
 # @app.route('/portfolios/<int:port_id>/transaction/<int:stock_id>/edit')

@@ -16,9 +16,7 @@
     <input placeholder="Add Stock" id="search" name="add-stock">
     <button class="btn btn-default" >Add Stock</button>
   </form>
-  <!-- <form class="navbar-form" method="POST" action="/portfolios/{{portfolio.id}}/transactions">
-    <button class="btn btn-default" >View Transaction</button>
-  </form> -->
+  
 <table>
     {% if portfolio.stocks %}
     <thead>
@@ -29,11 +27,18 @@
     <tbody>
         {% for stock in portfolio.stocks %}
     <tr>
-        <td>{{stock.stock_name}}<form action="/portfolios/{{portfolio.id}}/stock/{{stock.id}}/delete" method="post"><button>Delete</button></form><form method="POST" action="/portfolios/{{portfolio.id}}/transactions/{{stock.id}}">
-            <button class="btn btn-default" >Add Transaction</button>
-          </form><form><button formaction="/portfolios/{{portfolio.id}}/transactions/{{stock.id}}">View Lots</button></form></td>
+        <td><span><form method="POST" action="/portfolios/{{portfolio.id}}/transactions/{{stock.id}}/new">
+            <button class="btn btn-default" >Add Transaction</button></form></span></td>
+        <td><a href="/quote/{{stock.ticker}}/profile">{{stock.stock_name}}</a><form action="/portfolios/{{portfolio.id}}/stock/{{stock.id}}/delete" method="post"><button>Delete</button></form>
         <td>{{stock.ticker}}</td>
-        <td>{{stock.price}}</td>
+        <td>{{stock.price}}</td> 
+        {% for transaction in portfolio.transactions %}
+        {% if transaction.ticker == stock.ticker %}
+        <td><span><a href="/portfolios/{{portfolio.id}}/transactions/{{transaction.id}}">
+        <button class="btn btn-default" >View Transaction</button>
+        </span></td>
+        {% endif %}
+        {% endfor %}
     </tr>
         {% endfor %}
     </tbody>
