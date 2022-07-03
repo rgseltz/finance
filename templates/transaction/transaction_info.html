@@ -19,7 +19,22 @@
         <td>{{value}}</td>
     </tbody>
 </table>
+<div class="btn-group" role ="group">
 <form action="/portfolios/{{portfolio.id}}/transactions/{{transaction.id}}/delete" method="POST">
 <button>Delete Transaction</button>
 </form>
+
+<form action="/portfolios/{{portfolio.id}}/transactions/{{transaction.id}}/edit" method="POST"><button>Edit Transaction</button>
+</form>
+
+<form action="/portfolios/{{portfolio.id}}">
+<button>Back</button>
+</form>
+</div>
+
+<!-- <div class="btn-group" role="group" aria-label="Basic example">
+    <button type="button" class="btn btn-secondary">Left</button>
+    <button type="button" class="btn btn-secondary">Middle</button>
+    <button type="button" class="btn btn-secondary">Right</button>
+  </div> -->
 {% endblock %}

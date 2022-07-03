@@ -305,7 +305,7 @@ def new_transaction(portfolio_id, stock_id):
         db.session.add(portfolio)
         db.session.commit()
         return redirect(f'/portfolios/{portfolio.id}')
-    return render_template('transaction.html', form=form, stock=stock, portfolio=portfolio)
+    return render_template('transaction/transaction.html', form=form, stock=stock, portfolio=portfolio)
 
 # View Transactions
 
@@ -315,7 +315,7 @@ def view_transaction(port_id, tran_id):
     transaction = Transaction.query.get(tran_id)
     portfolio = Portfolio.query.get(port_id)
     value = transaction.price * transaction.quantity
-    return render_template('transaction_info.html', portfolio=portfolio, transaction=transaction, value=value)
+    return render_template('transaction/transaction_info.html', portfolio=portfolio, transaction=transaction, value=value)
 
 
 # delete transaction from portfolio
@@ -328,8 +328,29 @@ def delete_transaction(port_id, tran_id):
     return redirect(f'/portfolios/{portfolio.id}')
 
 # edit transaction
-# @app.route('/portfolios/<int:port_id>/transaction/<int:stock_id>/edit')
-# def edit_transaction(port_id, stock_id):
+
+
+@app.route('/portfolios/<int:port_id>/transactions/<int:trans_id>/edit', methods=["POST"])
+def edit_transaction(port_id, trans_id):
+    portfolio = Portfolio.query.get(port_id)
+    transaction = Transaction.query.get(trans_id)
+    form = NewTransactionForm(obj=transaction)
+    if form.validate_on_submit():
+        date = form.date.data
+        ticker = form.ticker.data
+        quantity = form.quantity.data
+        price = form.price.data
+
+        transaction.date = date
+        transaction.ticker = ticker
+        transaction.quantity = quantity
+        transaction.price = price
+
+        db.session.add(transaction)
+        db.session.commit()
+
+        return redirect(f'/portfolios/{portfolio.id}')
+    return render_template('transaction/transaction_edit.html', form=form, portfolio=portfolio, transaction=transaction)
 
 
 # search for stock
