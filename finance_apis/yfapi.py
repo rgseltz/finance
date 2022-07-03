@@ -1,18 +1,18 @@
 import requests
 api_key = "1G6Qv0DZjt3MS5J478NhO82oczZ4QB829AxKYm05"
 
-quote_url = "https://yfapi.net/v6/finance/quote"
+# quote_url = "https://yfapi.net/v6/finance/quote"
 
-querystring = {"symbols": "^SP500TR,^DJI,NDAQ,BTC-USD,EURUSD=X"}
+# querystring = {"symbols": "^SP500TR,^DJI,NDAQ,BTC-USD,EURUSD=X"}
 
-headers = {
-    'x-api-key': api_key
-}
+# headers = {
+#     'x-api-key': api_key
+# }
 
-response = requests.request(
-    "GET", quote_url, headers=headers, params=querystring)
+# response = requests.request(
+#     "GET", quote_url, headers=headers, params=querystring)
 
-print(response.text)
+# print(response.text)
 
 # quote_url = "https://yfapi.net/v6/finance/quote"
 options_url = "https://yfapi.net/v7/finance/options"
@@ -42,8 +42,8 @@ trending_stocks_by_region_url = "https://yfapi.net/v6/finance/quote/marketSummar
 #     "GET", market_summary_url, headers={'x-api-key': api_key}, params={'US'})
 # print(market_response.text)
 
-# query_string = "nasdaq"
-# autocomplete_response = requests.request(
-#     "GET", autocomplete_url, headers={'x-api-key': api_key}, params={'query': query_string, 'lang': 'en'})
-# print('$$$$%%%%AUTOCOMPLETE!!!!#########')
-# print(autocomplete_response.text)
+query_string = "nasd"
+autocomplete_response = requests.request(
+    "GET", autocomplete_url, headers={'x-api-key': api_key}, params={'query': query_string, 'lang': 'en'})
+print('$$$$%%%%AUTOCOMPLETE!!!!#########')
+print(autocomplete_response.text)
