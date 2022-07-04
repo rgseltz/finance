@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, DateField, DecimalField, IntegerField, IntegerRangeField
+from wtforms import StringField, FloatField, DateField, DecimalField, IntegerField, IntegerRangeField, SelectField
 from wtforms.validators import InputRequired, Optional
 
 
@@ -20,3 +20,8 @@ class NewTransactionForm(FlaskForm):
     #     form = NewTransactionForm(FlaskForm)
     #     if form:
     #         del form.stock_id
+
+
+class AddToWatchListForm(FlaskForm):
+    """Form for picking portfolio watchlist"""
+    portfolio_name = SelectField("Portfolio Name")

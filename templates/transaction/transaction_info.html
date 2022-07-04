@@ -3,7 +3,8 @@
 
 {% block content %}
 <h1>Transaction Info</h1>
-<table>
+<div class="container">
+<table class="table table-bordered">
     <thead>
         <th>Date</th>
         <th>Stock</th>
@@ -19,6 +20,7 @@
         <td>{{value}}</td>
     </tbody>
 </table>
+</div>
 <div class="btn-group" role ="group">
 <form action="/portfolios/{{portfolio.id}}/transactions/{{transaction.id}}/delete" method="POST">
 <button>Delete Transaction</button>

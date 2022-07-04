@@ -20,7 +20,10 @@
 <section id="pf-nav">
     <ul id="pf-list" class="list-group list-group-horizontal">
         {% for p in user.portfolios %}
-        <li class="list-group-item"><a href="/portfolios/{{p.id}}" class="btn btn-info">{{p.id}}{{p.portfolio_name}}</a><form action="/portfolios/{{p.id}}/delete" method="POST"><button>Delete</button></form></li>
+        <li class="list-group-item"><a href="/portfolios/{{p.id}}" class="btn btn-info">
+            {% if p.portfolio_name %}
+            {{p.portfolio_name}}
+            {% else %}{{p.id}}{% endif %}</a><form action="/portfolios/{{p.id}}/delete" method="POST"><button>Delete</button></form></li>
         {% endfor %}
     </ul>
     </section>

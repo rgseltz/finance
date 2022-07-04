@@ -1,7 +1,7 @@
 # from sys import ps1
 from flask import Flask, render_template, redirect, session, flash, request
 from flask_debugtoolbar import DebugToolbarExtension
-from forms import NewTransactionForm
+from forms import NewTransactionForm, AddToWatchListForm
 from models import LoginForm, RegisterForm, AddPortfolioForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, Transaction, Portfolio_Transaction
 from sqlalchemy.exc import IntegrityError
 # from forms import
@@ -111,6 +111,7 @@ def show_homepage():
 def get_stock_profile(ticker):
     # symbol = response.params
     # stock = 'goog'
+    user = User.query.get(session['user_id'])
     url = f'https://financialmodelingprep.com/api/v3/profile/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {
         'Content-Type': 'application/json'
@@ -119,19 +120,22 @@ def get_stock_profile(ticker):
     data = response.json()
     stock = (data[0])
     json.dumps(response.text)
-    return render_template('stock_info.html', stock=stock)
+    print(stock)
+    return render_template('quote/stock_info.html', stock=stock, user=user)
 
 # quote route price resource
 
 
 @ app.route('/quote/<ticker>/price', methods=["GET"])
 def get_stock_price(ticker):
+    if session:
+        user = User.query.get(session['user_id'])
     url = f'https://financialmodelingprep.com/api/v3/quote/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
     data = response.json()
     print(data)
-    return render_template('quote/stock_info.html', stock=data)
+    return render_template('quote/stock_info.html', stock=data, user=user)
 
 # quote route income statment resource
 
@@ -211,15 +215,17 @@ def add_portfolio():
 
 @ app.route('/portfolios/<int:portfolio_id>/edit', methods=["GET", "POST"])
 def edit_portfolio(portfolio_id):
-    portfolio = Portfolio.query.get(portfolio_id)
-    form = AddPortfolioForm(obj=portfolio)
-    if form.validate_on_submit():
-        name = form.portfolio_name.data
-        portfolio.portfolio_name = name
-        db.session.add(portfolio)
-        db.session.commit()
-        return redirect('/portfolios')
-    return render_template('portfolio/portfolio_edit.html', form=form)
+    if session:
+        user = User.query.get(session['user_id'])
+        portfolio = Portfolio.query.get(portfolio_id)
+        form = AddPortfolioForm(obj=portfolio)
+        if form.validate_on_submit():
+            name = form.portfolio_name.data
+            portfolio.portfolio_name = name
+            db.session.add(portfolio)
+            db.session.commit()
+            return redirect('/portfolios')
+    return render_template('portfolio/portfolio_edit.html', form=form, user=user)
 
 # delete portfolio
 
@@ -251,12 +257,15 @@ def get_portfolio(id):
             return render_template('/portfolio/portfolio_info.html', user=user, portfolio=portfolio)
 
 
-# add stock to portfolio
+# add stock to portfolio from inside portfolio
 
 @ app.route('/portfolios/<int:id>/addstock', methods=["GET", "POST"])
 def add_stock_to_portfolio(id):
-    ticker = request.form['add-stock']
     portfolio = Portfolio.query.get(id)
+    ticker = request.form['add-stock']
+    if ticker == "":
+        flash('Please enter symbol into textbox', 'warning')
+        return redirect(f'/portfolios/{portfolio.id}')
     url = f'https://financialmodelingprep.com/api/v3/profile/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'application/json'}
     response = requests.request("GET", url, headers=headers)
@@ -312,10 +321,15 @@ def new_transaction(portfolio_id, stock_id):
 
 @app.route('/portfolios/<int:port_id>/transactions/<int:tran_id>', methods=["GET"])
 def view_transaction(port_id, tran_id):
-    transaction = Transaction.query.get(tran_id)
-    portfolio = Portfolio.query.get(port_id)
-    value = transaction.price * transaction.quantity
-    return render_template('transaction/transaction_info.html', portfolio=portfolio, transaction=transaction, value=value)
+    if session:
+        user = User.query.get(session["user_id"])
+
+        transaction = Transaction.query.get(tran_id)
+        portfolio = Portfolio.query.get(port_id)
+        value = transaction.price * transaction.quantity
+        return render_template('transaction/transaction_info.html', portfolio=portfolio, transaction=transaction, value=value, user=user)
+    else:
+        flash('You do not have access!', 'danger')
 
 
 # delete transaction from portfolio
@@ -332,37 +346,69 @@ def delete_transaction(port_id, tran_id):
 
 @app.route('/portfolios/<int:port_id>/transactions/<int:trans_id>/edit', methods=["POST"])
 def edit_transaction(port_id, trans_id):
-    portfolio = Portfolio.query.get(port_id)
-    transaction = Transaction.query.get(trans_id)
-    form = NewTransactionForm(obj=transaction)
-    if form.validate_on_submit():
-        date = form.date.data
-        ticker = form.ticker.data
-        quantity = form.quantity.data
-        price = form.price.data
+    if session:
+        user = User.query.get(session['user_id'])
+        portfolio = Portfolio.query.get(port_id)
+        transaction = Transaction.query.get(trans_id)
+        form = NewTransactionForm(obj=transaction)
+        if form.validate_on_submit():
+            date = form.date.data
+            ticker = form.ticker.data
+            quantity = form.quantity.data
+            price = form.price.data
 
-        transaction.date = date
-        transaction.ticker = ticker
-        transaction.quantity = quantity
-        transaction.price = price
+            transaction.date = date
+            transaction.ticker = ticker
+            transaction.quantity = quantity
+            transaction.price = price
 
-        db.session.add(transaction)
-        db.session.commit()
+            db.session.add(transaction)
+            db.session.commit()
 
-        return redirect(f'/portfolios/{portfolio.id}')
-    return render_template('transaction/transaction_edit.html', form=form, portfolio=portfolio, transaction=transaction)
+            return redirect(f'/portfolios/{portfolio.id}')
+    return render_template('transaction/transaction_edit.html', form=form, portfolio=portfolio, transaction=transaction, user=user)
 
 
 # search for stock
 
-@ app.route('/search', methods=["GET"])
+@app.route('/search', methods=["GET"])
 def search_ticker():
-    url = "https://financialmodelingprep.com/api/v3/search?query=goog&limit=50&apikey=9e5ca9243a059ff6320c70bfe3e964d7"
+    if session:
+        user = User.query.get(session['user_id'])
+    q = request.args["q"]
+    url = f'https://financialmodelingprep.com/api/v3/search?query={q}&limit=50&apikey=9e5ca9243a059ff6320c70bfe3e964d7'
 
     payload = {}
     headers = {}
 
     response = requests.request("GET", url, headers=headers, data=payload)
+    print('SEARCH RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+    data = response.json()
+    return render_template('search.html', response=data, user=user)
 
-    print(response.text)
-    return redirect('/')
+
+@app.route('/watchlist/add/<ticker>', methods=["GET", "POST"])
+def add_stock_to_watchlist(ticker):
+    url = f'https://financialmodelingprep.com/api/v3/profile/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'application/json'}
+    response = requests.request("GET", url, headers=headers)
+    data = response.json()
+    print(data)
+    Stock.query.filter_by(ticker=data[0]["symbol"])
+    stock = Stock(stock_name=data[0]["companyName"],
+                  ticker=data[0]["symbol"], price=data[0]["price"])
+    if session:
+        user = User.query.get_or_404(session['user_id'])
+        portfolios = user.portfolios
+        form = AddToWatchListForm()
+        form.portfolio_name.choices = [
+            portfolio.portfolio_name or portfolio.id for portfolio in portfolios]
+        if form.validate_on_submit():
+            portfolio = form.portfolio_name.choices
+            print(portfolio)
+            portfolio.stock.append(stock)
+            db.session.add(stock)
+            db.session.add(portfolio)
+            db.session.commit()
+
+        return render_template('add_watchlist.html', form=form, ticker=ticker)

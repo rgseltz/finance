@@ -2,22 +2,26 @@
 {% block title %}Portfolio Info{% endblock %}
 
 {% block content %}
+<h1>{{user.username.title()}}'s Portfolios</h1>
 <section id="pf-nav">
     <ul id="pf-list" class="list-group list-group-horizontal">
         {% for p in user.portfolios %}
-        <li class="list-group-item"><a href="/portfolios/{{p.id}}" class="btn btn-info">{{p.id}}  {{p.portfolio_name}}</a></li>
+        <li class="list-group-item"><a href="/portfolios/{{p.id}}" class="btn btn-info">
+            {% if p.portfolio_name %}{{p.portfolio_name.title()}}
+            {% else %} {{p.id}} {% endif %}        
+        </a></li>
         {% endfor %}
     </ul>
 
     </section>
-<h1>{{user.username}}'s Portfolios</h1>
-<h2>{{portfolio.portfolio_name}}</h2><button class="btn btn-small" action="/portfolios/{{portfolio.id}}/edit">Change Name</button>
+
+<h2>{{portfolio.portfolio_name.title()}}</h2><button class="btn btn-small" action="/portfolios/{{portfolio.id}}/edit">Change Name</button>
 <form class="navbar-form" method="POST" action="/portfolios/{{portfolio.id}}/addstock">
     <input placeholder="Add Stock" id="search" name="add-stock">
     <button class="btn btn-default" >Add Stock</button>
   </form>
   
-<table>
+<table class="table table-bordered">
     {% if portfolio.stocks %}
     <thead>
         <th>Name</th>
@@ -27,9 +31,9 @@
     <tbody>
         {% for stock in portfolio.stocks %}
     <tr>
-        <td><span><form method="POST" action="/portfolios/{{portfolio.id}}/transactions/{{stock.id}}/new">
-            <button class="btn btn-default" >Add Transaction</button></form></span></td>
-        <td><a href="/quote/{{stock.ticker}}/profile">{{stock.stock_name}}</a><form action="/portfolios/{{portfolio.id}}/stock/{{stock.id}}/delete" method="post"><button>Delete</button></form>
+        <td><span class="btn-group"><a class="btn" href="/quote/{{stock.ticker}}/profile">{{stock.stock_name}}</a><form method="POST" action="/portfolios/{{portfolio.id}}/transactions/{{stock.id}}/new">
+            <button class="btn btn-outline-secondary" >Add Transaction</button></form>
+        </span></td>
         <td>{{stock.ticker}}</td>
         <td>{{stock.price}}</td> 
         {% for transaction in portfolio.transactions %}
@@ -39,16 +43,19 @@
         </span></td>
         {% endif %}
         {% endfor %}
+        <td><form action="/portfolios/{{portfolio.id}}/stock/{{stock.id}}/delete" method="post"><button class="btn btn-secondary btn-sm">x</button></form></td>
     </tr>
         {% endfor %}
     </tbody>
     
     {% endif %}
 </table>
+<div class="btn-group">
 <form action="/portfolios/{{portfolio.id}}/delete" method="post">
     <button>Delete Portfolio</button>
 </form>
 <form action="/portfolios/{{portfolio.id}}/edit">
     <button>Edit Portfolio Name</button>
 </form>
+</div>
 {% endblock %}

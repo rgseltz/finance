@@ -1,3 +1,4 @@
+from random import choices
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey
 from flask_bcrypt import Bcrypt
@@ -31,11 +32,12 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    username = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, nullable=False, info={'label': 'Username'})
 
-    password = db.Column(db.String, nullable=False)
+    password = db.Column(db.String, nullable=False, info={'label': 'Password'})
 
-    email = db.Column(db.String, nullable=False, unique=True)
+    email = db.Column(db.String, nullable=False,
+                      unique=True, info={'label': 'Email'})
 
     # stocks = db.relationship('Stock', secondary=(
     #     'portfolios_stocks'), viewonly=True)
@@ -67,7 +69,8 @@ class Portfolio(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    portfolio_name = db.Column(db.String, nullable=False)
+    portfolio_name = db.Column(
+        db.String, nullable=False, info={'label': 'Name'})
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
