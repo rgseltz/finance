@@ -126,7 +126,7 @@ def get_stock_profile(ticker):
 # quote route price resource
 
 
-@ app.route('/quote/<ticker>/price', methods=["GET"])
+@ app.route('/quote/<ticker>/summary', methods=["GET"])
 def get_stock_price(ticker):
     if session:
         user = User.query.get(session['user_id'])
@@ -134,8 +134,9 @@ def get_stock_price(ticker):
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
     data = response.json()
+    stock = data[0]
     print(data)
-    return render_template('quote/stock_info.html', stock=data, user=user)
+    return render_template('quote/stock_info.html', stock=stock, user=user)
 
 # quote route income statment resource
 
@@ -147,7 +148,7 @@ def get_stock_income_statement(ticker):
     response = requests.request("GET", url, headers=headers)
     data = response.json()
     print(data)
-    return render_template('quote/stock_info.html', stock=data)
+    return render_template('quote/income_statement.html', stock=data)
 
 # quote route balance statement resource
 
@@ -177,8 +178,10 @@ def get_stock_history(ticker):
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
     data = response.json()
+    stock = data['symbol']
+    historical = data['historical']
     print(data)
-    return render_template('quote/stock_info.html', stock=data)
+    return render_template('quote/historical_prices.html', stock=stock, historical=historical)
 
 ###########Portfolio Resources#####################
 

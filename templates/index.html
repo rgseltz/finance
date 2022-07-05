@@ -2,13 +2,13 @@
 {% block title %}Finance Page{% endblock %}
 
 {% block content %}
-<h1>Finance Homepage</h1>
-<div id="current-market-wrapper">
-    <section>
-    <ul class="list-group list-group-horizontal">
-        <li class="list-group">
+
+<div id="current-market-wrapper" class="container m-5" >
+    <div class="row">
+    <ul class="list-group list-group-horizontal text-center">
+        <li class="list-group m-3 col">
             <h3>
-                <a href="" title="S&P 500 Index">S&P 500</a>
+                <a class="text-center" href="" title="S&P 500 Index">S&P 500</a>
                 <br>
                 <div class="ticker-price" data-ticker="" data-field="regular-market-price" value="">
                     ${{data["result"][0]["regularMarketPrice"]}}
@@ -24,9 +24,9 @@
                 </div>
             </h3>
         </li>
-        <li class="list-group">
+        <li class="list-group m-3 col">
             <h3>
-                <a href="" title="DJIAI Index">D&J</a>
+                <a class="text-center" href="" title="DJIAI Index">D&J</a>
                 <br>
                 <div class="ticker-price" data-ticker="" data-field="regular-market-price" value="">
                     ${{data["result"][1]["regularMarketPrice"]}}
@@ -41,9 +41,9 @@
                 </div>
             </h3>
         </li>
-        <li class="list-group">
+        <li class="list-group m-3 col">
             <h3>
-                <a href="" title="NASDAQ Index">NASDAQ</a>
+                <a class="text-center" href="" title="NASDAQ Index">NASDAQ</a>
                 <br>
                 <div class="ticker-price" data-ticker="" data-field="regular-market-price" value="">
                     ${{data["result"][2]["regularMarketPrice"]}}
@@ -59,6 +59,6 @@
             </h3>
         </li>
     </ul>
-    </section>
+    </div>
 </div>
 {% endblock %}

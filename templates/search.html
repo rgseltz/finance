@@ -14,7 +14,7 @@
         {% for result in response %}
         <tr>
             <td><section>{{result["name"]}}</section></td>
-            <td><section class="btn-group"><a class="btn" href="/quote/{{result['symbol']}}/profile">{{result["symbol"]}}</a><form method="POST" action="/watchlist/add/{{result['symbol']}}"><button class="btn btn-outline-secondary btn-sm">Add to watchlist</button></form></section></td>
+            <td><section class="btn-group"><a class="btn" href="/quote/{{result['symbol']}}/profile">{{result["symbol"]}}</a></section></td><td><section><form  method="POST" action="/watchlist/add/{{result['symbol']}}"><button class="btn btn-outline-secondary btn-sm text-center">Add to watchlist</button></form></section></td>
         </tr>
         {% endfor %}
     </tbody>

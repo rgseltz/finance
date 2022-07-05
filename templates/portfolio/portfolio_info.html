@@ -31,7 +31,7 @@
     <tbody>
         {% for stock in portfolio.stocks %}
     <tr>
-        <td><span class="btn-group"><a class="btn" href="/quote/{{stock.ticker}}/profile">{{stock.stock_name}}</a><form method="POST" action="/portfolios/{{portfolio.id}}/transactions/{{stock.id}}/new">
+        <td><span class="btn-group"><a class="btn" href="/quote/{{stock.ticker}}/summary">{{stock.stock_name}}</a><form method="POST" action="/portfolios/{{portfolio.id}}/transactions/{{stock.id}}/new">
             <button class="btn btn-outline-secondary" >Add Transaction</button></form>
         </span></td>
         <td>{{stock.ticker}}</td>
