@@ -373,8 +373,8 @@ def edit_transaction(port_id, trans_id):
 
 @app.route('/search', methods=["GET"])
 def search_ticker():
-    if session:
-        user = User.query.get(session['user_id'])
+    # if session:
+    #     user = User.query.get(session['user_id'])
     q = request.args["q"]
     url = f'https://financialmodelingprep.com/api/v3/search?query={q}&limit=50&apikey=9e5ca9243a059ff6320c70bfe3e964d7'
 
@@ -384,7 +384,7 @@ def search_ticker():
     response = requests.request("GET", url, headers=headers, data=payload)
     print('SEARCH RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
     data = response.json()
-    return render_template('search.html', response=data, user=user)
+    return render_template('search.html', response=data)
 
 
 @app.route('/watchlist/add/<ticker>', methods=["GET", "POST"])
@@ -397,18 +397,21 @@ def add_stock_to_watchlist(ticker):
     Stock.query.filter_by(ticker=data[0]["symbol"])
     stock = Stock(stock_name=data[0]["companyName"],
                   ticker=data[0]["symbol"], price=data[0]["price"])
-    if session:
-        user = User.query.get_or_404(session['user_id'])
-        portfolios = user.portfolios
-        form = AddToWatchListForm()
-        form.portfolio_name.choices = [
-            portfolio.portfolio_name or portfolio.id for portfolio in portfolios]
-        if form.validate_on_submit():
-            portfolio = form.portfolio_name.choices
-            print(portfolio)
-            portfolio.stock.append(stock)
-            db.session.add(stock)
-            db.session.add(portfolio)
-            db.session.commit()
+    user = User.query.get_or_404(session['user_id'])
+    portfolios = user.portfolios
+    form = AddToWatchListForm()
+    form.portfolio_name.choices = [
+        portfolio.portfolio_name or portfolio.id for portfolio in portfolios]
+    if form.validate_on_submit():
+        portfolio_name = form.portfolio_name.data
+        portfolio = Portfolio.query.filter(
+            Portfolio.portfolio_name == portfolio_name).first()
+        print('PORTFOLIO!!!!!!!')
+        print(portfolio.portfolio_name, portfolio.id)
+        portfolio.stocks.append(stock)
+        db.session.add(stock)
+        db.session.add(portfolio)
+        db.session.commit()
+        return redirect('/')
 
-        return render_template('add_watchlist.html', form=form, ticker=ticker)
+    return render_template('add_watchlist.html', form=form, ticker=ticker)
