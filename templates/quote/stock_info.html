@@ -30,18 +30,26 @@
           Add Watchlist
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-          <button class="dropdown-item" type="button">Action</button>
-          <button class="dropdown-item" type="button">Another action</button>
-          <button class="dropdown-item" type="button">Something else here</button>
+            {% if user %}
+            {% for portfolio in user.portfolios %}
+          <form action="/portfolios/{{portfolio.id}}/addstock" method="POST"><button class="dropdown-item" type="button">
+            {% if portfolio.portfolio_name %}
+            {{portfolio.portfolio_name}}
+            {% else %}
+            {{portfolio.id}}
+            {% endif %}
+            </button></form>
+            {% endfor %}
+            {% endif %}
+            <button class="dropdown-item" type="button">-</button>
         </div>
       </div></form></div>
 </div>
 
 {% block quotebar %}
 <div class="container-fluid">
-<div class="row">
-    <div class="col"></div>
-    <div id="nav-quote" class="col">
+<div class="row justify-content-center">
+    <div id="nav-quote">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -56,7 +64,6 @@
             </div>
           </nav>
     </div>
-    <div class="col"></div>
 </div>
 </div>
 {% endblock quotebar %}

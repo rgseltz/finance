@@ -2,28 +2,169 @@
 {% block title %}Historical Prices{% endblock %}
 
 {% block content %}
-<h1 class="mt-5 pt-5">Financial Statements</h1>
+
+<h1 class="mt-5 pt-5 text-center">Financial Statements</h1>
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col"></div>
-        <div id="nav-quote" class="col">
+    <div class="row justify-content-center">
+        <div id="nav-quote">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                   <div class="navbar-nav">
-                    <a class="nav-item nav-link" href="/quote/{{stock}}/summary">Summary</a>
-                    <a class="nav-item nav-link" href="/quote/{{stock}}/profile">Profile</a>
-                    <a class="nav-item nav-link" href="/quote/{{stock}}/financials/inc">Financial Statements</a>
-                    <a class="nav-item nav-link" href="/quote/{{stock}}/history">Historical Data</a>
+                    <a class="nav-item nav-link" href="/quote/{{stock['symbol']}}/summary">Summary</a>
+                    <a class="nav-item nav-link" href="/quote/{{stock['symbol']}}/profile">Profile</a>
+                    <a class="nav-item nav-link" href="/quote/{{stock['symbol']}}/financials/inc">Financial Statements</a>
+                    <a class="nav-item nav-link" href="/quote/{{stock['symbol']}}/history">Historical Data</a>
                   </div>
                 </div>
               </nav>
         </div>
-        <div class="col"></div>
     </div>
     </div>
 
+    <div class="container-fluid">
+      <h1 class="display-4 text-center">Annual Income Statement for {{stock['symbol']}}</h1>
+      <div class="row justify-content-center">
+          <div id="nav-quote">
+              <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="navbar-nav">
+                      <a class="nav-item nav-link" href="/quote/{{stock['symbol']}}/financials/bal">Annual Balance Sheet</a>
+                      <a class="nav-item nav-link" href="/quote/{{stock['symbol']}}/financials/inc">Annual Cash Flow</a>
+                    </div>
+                  </div>
+                </nav>
+          </div>
+      </div>
+      <div class="row justify-content-center">
+        <table class="table table-sm">
+          <thead>
+            <th>Financials</th>
+            <th>{{stock['calendarYear']}}</th>
+          </thead>
+          <tbody>
+            <tr class="table-primary">
+              <td>Revenue</td>
+              <td>{{stock['revenue']}}</td>
+            </tr>
+            <tr>
+              <td>Cost of Revenue</td>
+              <td>{{stock['costOfRevenue']}}</td>
+            </tr>
+            <tr class="table-ino">
+              <td>Gross Profit</td>
+              <td>{{stock['grossProfit']}}</td>
+            </tr>
+            <tr>
+              <td>Gross Profit Ratio</td>
+              <td>{{stock['grossProfitRatio']}}</td>
+            </tr>
+            <tr class="table-primary">
+              <td>Research & Development Expense</td>
+              <td>{{stock['researchAndDevelopmentExpenses']}}</td>
+            </tr>
+            <tr>
+              <td>General & Administrative Expenses</td>
+              <td>{{stock['generalAndAdministrativeExpenses']}}</td>
+            </tr>
+            <tr>
+              <td>Selling & Marketing Expenses</td>
+              <td>{{stock['sellingAndMarketingExpenses']}}</td>
+            </tr>
+            <tr>
+              <td>Selling General & Administrative Expenses</td>
+              <td>{{stock['sellingGeneralAndAdministrativeExpenses']}}</td>
+            </tr>
+            <tr>
+              <td>Other Expenses</td>
+              <td>{{stock['otherExpenses']}}</td>
+            </tr>
+
+            <tr>
+              <td>Operating Expenses</td>
+              <td>{{stock['operatingExpenses']}}</td>
+            </tr>
+            <tr>
+              <td>Cost & Expenses</td>
+              <td>{{stock['costAndExpenses']}}</td>
+            </tr>
+            <tr>
+              <td>Interest Income</td>
+              <td>{{stock['interestIncome']}}</td>
+            </tr>
+            <tr>
+              <td>Interest Expense</td>
+              <td>{{stock['interestExpense']}}</td>
+            </tr>
+            <tr>
+              <td>Depreciation & Amortization</td>
+              <td>{{stock['depreciationAndAmortization']}}</td>
+            </tr>
+            <tr>
+              <td>EBITDA</td>
+              <td>{{stock['ebitda']}}</td>
+            </tr>
+            <tr>
+              <td>EBITDA Ratio</td>
+              <td>{{stock['ebitdaratio']}}</td>
+            </tr>
+            <tr>
+              <td>Operating Income</td>
+              <td>{{stock['operatingIncome']}}</td>
+            </tr>
+            <tr>
+              <td>Operating Income Ratio</td>
+              <td>{{stock['operatingIncomeRatio']}}</td>
+            </tr>
+            <tr>
+              <td>Total Other Income Expenses(net)</td>
+              <td>{{stock['totalOtherIncomeExpensesNet']}}</td>
+            </tr>
+            <tr>
+              <td>Income Before Tax</td>
+              <td>{{stock['incomeBeforeTax']}}</td>
+            </tr>
+            <tr>
+              <td>Income Before Tax Ratio</td>
+              <td>{{stock['incomeBeforeTaxRatio']}}</td>
+            </tr>
+            <tr>
+              <td>Income Tax Expense</td>
+              <td>{{stock['incomeTaxExpense']}}</td>
+            </tr>
+            <tr class="table-secondary">
+              <td>Net Income</td>
+              <td>{{stock['netIncome']}}</td>
+            </tr>
+            <tr>
+              <td>Net Income Ratio</td>
+              <td>{{stock['netIncomeRatio']}}</td>
+            </tr>
+            <tr>
+              <td>Earnings Per Share</td>
+              <td>{{stock['eps']}}</td>
+            </tr>
+            <tr>
+              <td>Earnings Per Share(diluted)</td>
+              <td>{{stock['epsdiluted']}}</td>
+            </tr>
+            <tr>
+              <td>Weighted Average Shares Outstanding</td>
+              <td>{{stock['weightedAverageShsOut']}}</td>
+            </tr>
+            <tr>
+              <td>Weighted Average Share Outstanding(diluted)</td>
+              <td>{{stock['weightedAverageShsOutDil']}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+      
 {% endblock %}

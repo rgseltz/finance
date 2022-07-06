@@ -1,6 +1,7 @@
 # from sys import ps1
 from flask import Flask, render_template, redirect, session, flash, request
 from flask_debugtoolbar import DebugToolbarExtension
+from sqlalchemy import Numeric
 from forms import NewTransactionForm, AddToWatchListForm
 from models import LoginForm, RegisterForm, AddPortfolioForm, connect_db, db, User, bcrypt, Portfolio, Stock, Portfolio_Stock, Transaction, Portfolio_Transaction
 from sqlalchemy.exc import IntegrityError
@@ -93,15 +94,34 @@ profile_url = f'{url}/profile/{STOCK}?api_key={finance_key}'
 
 @app.route('/', methods=["GET"])
 def show_homepage():
-    market_summary_url = "https://yfapi.net/v6/finance/quote/marketSummary"
-    quote_url = "https://yfapi.net/v6/finance/quote"
-    query_string = {"symbols": "^SP500TR,^DJI,NDAQ,BTC-USD,EURUSD=X"}
-    response = requests.request(
-        "GET", quote_url, headers={'x-api-key': yfapi_key}, params=query_string)
+    # market_summary_url = "https://yfapi.net/v6/finance/quote/marketSummary"
+    # quote_url = "https://yfapi.net/v6/finance/quote"
+    # query_string = {"symbols": "^SP500TR,^DJI,NDAQ,BTC-USD,EURUSD=X"}
+    # response = requests.request(
+    #     "GET", quote_url, headers={'x-api-key': 'vcH3xQXeThaziTm6FMDuOev9Fqvp5Ud4R0uHVxq3'}, params=query_string)
+    # data = response.json()
+    # return render_template('index.html', data=data["quoteResponse"])
+    spy_url = f'https://financialmodelingprep.com/api/v3/quote/SPY?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    spy_response = requests.request("GET", spy_url, headers=headers)
+    spy_data = spy_response.json()
+    spy = spy_data[0]
+
+    qqq_url = f'https://financialmodelingprep.com/api/v3/quote/QQQ?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    qqq_response = requests.request("GET", qqq_url, headers=headers)
+    qqq_data = qqq_response.json()
+    qqq = qqq_data[0]
+
+    dia_url = f'https://financialmodelingprep.com/api/v3/quote/DIA?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    dia_response = requests.request("GET", dia_url, headers=headers)
+    dia_data = dia_response.json()
+    dia = dia_data[0]
     print(f'###########################{session}#############')
-    data = response.json()
-    print(data["quoteResponse"])
-    return render_template('index.html', data=data["quoteResponse"])
+    print(spy, qqq, dia)
+    return render_template('index.html', spy=spy, qqq=qqq, dia=dia)
+
 
 ###########Quote Resources#####################
 # quote route profile resource
@@ -111,7 +131,10 @@ def show_homepage():
 def get_stock_profile(ticker):
     # symbol = response.params
     # stock = 'goog'
-    user = User.query.get(session['user_id'])
+    if "user_id" in session:
+        user = User.query.get(session['user_id'])
+    else:
+        user = None
     url = f'https://financialmodelingprep.com/api/v3/profile/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {
         'Content-Type': 'application/json'
@@ -121,15 +144,18 @@ def get_stock_profile(ticker):
     stock = (data[0])
     json.dumps(response.text)
     print(stock)
-    return render_template('quote/stock_info.html', stock=stock, user=user)
+    return render_template('quote/profile.html', stock=stock, user=user)
 
 # quote route price resource
 
 
 @ app.route('/quote/<ticker>/summary', methods=["GET"])
 def get_stock_price(ticker):
-    if session:
+    if "user_id" in session:
         user = User.query.get(session['user_id'])
+    else:
+        user = None
+
     url = f'https://financialmodelingprep.com/api/v3/quote/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
@@ -147,8 +173,9 @@ def get_stock_income_statement(ticker):
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
     data = response.json()
-    print(data)
-    return render_template('quote/income_statement.html', stock=data)
+    stock = data[0]
+    print(stock)
+    return render_template('quote/income_statement.html', stock=stock)
 
 # quote route balance statement resource
 
@@ -159,8 +186,20 @@ def get_stock_balance_sheet(ticker):
     headers = {'Content-Type': 'applications/json'}
     response = requests.request("GET", url, headers=headers)
     data = response.json()
-    print(data)
-    return render_template('quote/stock_info.html', stock=data)
+    stock = data[0]
+    return render_template('quote/balance_sheet.html', stock=stock)
+
+# get route statement of cash flows resource
+
+
+@ app.route('/quote/<ticker>/financials/cf', methods=["GET"])
+def get_stock_cash_flows(ticker):
+    url = f'https://financialmodelingprep.com/api/v3/cash-flow-statement/{ticker.upper()}?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    response = requests.request("GET", url, headers=headers)
+    data = response.json()
+    stock = data[0]
+    return render_template('quote/cashl_flows_statement.html', stock=stock)
 
 # quote route historical data resource
 
@@ -389,6 +428,8 @@ def search_ticker():
     data = response.json()
     return render_template('search.html', response=data)
 
+# Add stock to portfolio from search page
+
 
 @app.route('/watchlist/add/<ticker>', methods=["GET", "POST"])
 def add_stock_to_watchlist(ticker):
@@ -406,11 +447,14 @@ def add_stock_to_watchlist(ticker):
     form.portfolio_name.choices = [
         portfolio.portfolio_name or portfolio.id for portfolio in portfolios]
     if form.validate_on_submit():
-        portfolio_name = form.portfolio_name.data
-        portfolio = Portfolio.query.filter(
-            Portfolio.portfolio_name == portfolio_name).first()
+        if form.portfolio_name.data.isnumeric():
+            portfolio = Portfolio.query.filter(
+                Portfolio.id == form.portfolio_name.data).first()
+        else:
+            portfolio_name = form.portfolio_name.data
+            portfolio = Portfolio.query.filter(
+                Portfolio.portfolio_name == portfolio_name).first()
         print('PORTFOLIO!!!!!!!')
-        print(portfolio.portfolio_name, portfolio.id)
         portfolio.stocks.append(stock)
         db.session.add(stock)
         db.session.add(portfolio)
@@ -418,3 +462,27 @@ def add_stock_to_watchlist(ticker):
         return redirect('/')
 
     return render_template('add_watchlist.html', form=form, ticker=ticker)
+
+
+def homepage_requests():
+
+    spy_url = f'https://financialmodelingprep.com/api/v3/quote/SPY?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    spy_response = requests.request("GET", spy_url, headers=headers)
+    spy_data = spy_response.json()
+    spy = spy_data[0]['symbol']
+
+    qqq_url = f'https://financialmodelingprep.com/api/v3/quote/QQQ?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    qqq_response = requests.request("GET", qqq_url, headers=headers)
+    qqq_data = qqq_response.json()
+    qqq = qqq_data[0]['symbol']
+
+    dia_url = f'https://financialmodelingprep.com/api/v3/quote/DIA?apikey=9e5ca9243a059ff6320c70bfe3e964d7'
+    headers = {'Content-Type': 'applications/json'}
+    dia_response = requests.request("GET", dia_url, headers=headers)
+    dia_data = dia_response.json()
+    dia = dia_data[0]['symbol']
+
+    data_list = [spy, dia, qqq]
+    return data_list

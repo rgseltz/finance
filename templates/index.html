@@ -8,10 +8,10 @@
     <ul class="list-group list-group-horizontal text-center">
         <li class="list-group m-3 col">
             <h3>
-                <a class="text-center" href="" title="S&P 500 Index">S&P 500</a>
+                <a class="text-center" href="" title="S&P 500 ETF">S&P 500 ETF</a>
                 <br>
                 <div class="ticker-price" data-ticker="" data-field="regular-market-price" value="">
-                    ${{data["result"][0]["regularMarketPrice"]}}
+                    ${{spy["price"]}}
                 </div>
                 <div class="price-change">
                     <p class="currency" data-field="regular-market-change" value="">
@@ -26,10 +26,10 @@
         </li>
         <li class="list-group m-3 col">
             <h3>
-                <a class="text-center" href="" title="DJIAI Index">D&J</a>
+                <a class="text-center" href="" title="DJIAI Index">DIA</a>
                 <br>
                 <div class="ticker-price" data-ticker="" data-field="regular-market-price" value="">
-                    ${{data["result"][1]["regularMarketPrice"]}}
+                    ${{dia['price']}}
                 </div>
                 <div class="price-change">
                     <p class="currency" data-field="regular-market-change" value="">
@@ -43,10 +43,10 @@
         </li>
         <li class="list-group m-3 col">
             <h3>
-                <a class="text-center" href="" title="NASDAQ Index">NASDAQ</a>
+                <a class="text-center" href="" title="NASDAQ Index">QQQ Shares NASDQ ETF</a>
                 <br>
                 <div class="ticker-price" data-ticker="" data-field="regular-market-price" value="">
-                    ${{data["result"][2]["regularMarketPrice"]}}
+                    ${{qqq['price']}}
                 </div>
                 <div class="price-change">
                     <p class="currency" data-field="regular-market-change" value="">

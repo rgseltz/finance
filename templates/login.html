@@ -2,18 +2,23 @@
 {% block title %}Login Page{% endblock %}
 
 {% block content %}
-<h1>Login</h1>
-<form method="POST">
+<div class="container mt-5 pt-5">
+<h1 class="text-center display-4">Login</h1>
+<div class="container text-center">
+    <div><form method="POST">
     {{form.hidden_tag()}}
     {% for field in form if field.widget.input_type != "hidden" %}
-    <p>{{field.label}}
-        {{field}}
+    <p class="form-group">{{field.label}}
+        {{field(class_="form-control")}}
         {% for err in field.errors %}
         {{err}}
         {% endfor %}
     </p>
     {% endfor %}
-    <button>Login</button>
+    <button>Login</button></form></div>
+</div>
 
-</form>
+</div>
+
+
 {% endblock %}
